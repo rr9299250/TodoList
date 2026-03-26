@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}TaskFlow — Edit Task{% endblock %}
+{% block page_title %}Edit Task{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-card">
+    <div class="form-card-header">
+      <i class="bi bi-pencil-square form-icon form-icon-edit"></i>
+      <div>
+        <h2 class="form-heading">Edit Task</h2>
+        <p class="form-sub">Update the details of your task.</p>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('update_task', task_id=task.id) }}" class="task-form" novalidate>
+
+      <!-- Title -->
+      <div class="field-group">
+        <label for="title" class="field-label">Task Title <span class="required">*</span></label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          class="field-input"
+          placeholder="What needs to be done?"
+          value="{{ task.title }}"
+          maxlength="200"
+          required
+          autofocus
+        />
+      </div>
+
+      <!-- Description -->
+      <div class="field-group">
+        <label for="description" class="field-label">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          class="field-input field-textarea"
+          placeholder="Add more details (optional)…"
+          rows="4"
+        >{{ task.description or '' }}</textarea>
+      </div>
+
+      <!-- Priority + Due Date + Status row -->
+      <div class="field-row">
+        <div class="field-group">
+          <label for="priority" class="field-label">Priority</label>
+          <select id="priority" name="priority" class="field-input field-select">
+            {% for p in ['Low', 'Medium', 'High'] %}
+              <option value="{{ p }}" {% if task.priority == p %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="due_date" class="field-label">Due Date</label>
+          <input
+            type="date"
+            id="due_date"
+            name="due_date"
+            class="field-input"
+            value="{{ task.due_date_str() }}"
+          />
+        </div>
+
+        <div class="field-group">
+          <label for="status" class="field-label">Status</label>
+          <select id="status" name="status" class="field-input field-select">
+            <option value="Pending"   {% if task.status == 'Pending'   %}selected{% endif %}>Pending</option>
+            <option value="Completed" {% if task.status == 'Completed' %}selected{% endif %}>Completed</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <a href="{{ url_for('index') }}" class="btn-secondary-main">Cancel</a>
+        <button type="submit" class="btn-primary-main btn-edit-submit">
+          <i class="bi bi-check-lg"></i> Save Changes
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}

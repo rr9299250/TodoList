@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}TaskFlow — Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- ── Stats Cards ─────────────────────────────────────────────── -->
+<div class="stats-grid">
+  <div class="stat-card stat-total">
+    <div class="stat-icon"><i class="bi bi-list-task"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-label">Total Tasks</div>
+    </div>
+  </div>
+  <div class="stat-card stat-pending">
+    <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ pending }}</div>
+      <div class="stat-label">Pending</div>
+    </div>
+  </div>
+  <div class="stat-card stat-done">
+    <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ completed }}</div>
+      <div class="stat-label">Completed</div>
+    </div>
+  </div>
+  <div class="stat-card stat-overdue">
+    <div class="stat-icon"><i class="bi bi-exclamation-circle"></i></div>
+    <div class="stat-info">
+      <div class="stat-value">{{ overdue }}</div>
+      <div class="stat-label">Overdue</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Filter & Search Bar ────────────────────────────────────── -->
+<div class="toolbar">
+  <!-- Filter tabs -->
+  <div class="filter-tabs">
+    {% for label in ['All', 'Pending', 'Completed'] %}
+      <a href="{{ url_for('index', status=label, search=search_query) }}"
+         class="filter-tab {% if status_filter == label %}active{% endif %}">
+        {{ label }}
+      </a>
+    {% endfor %}
+  </div>
+
+  <!-- Search -->
+  <form class="search-form" method="GET" action="{{ url_for('index') }}">
+    <input type="hidden" name="status" value="{{ status_filter }}" />
+    <div class="search-wrap">
+      <i class="bi bi-search search-icon"></i>
+      <input
+        type="text"
+        name="search"
+        class="search-input"
+        placeholder="Search tasks…"
+        value="{{ search_query }}"
+        autocomplete="off"
+      />
+      {% if search_query %}
+        <a href="{{ url_for('index', status=status_filter) }}" class="search-clear">
+          <i class="bi bi-x-lg"></i>
+        </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<!-- ── Task List ──────────────────────────────────────────────── -->
+{% if tasks %}
+  <div class="task-list" id="taskList">
+    {% for task in tasks %}
+      <div class="task-card {% if task.status == 'Completed' %}task-done{% endif %} {% if task.is_overdue() %}task-overdue{% endif %}"
+           id="task-{{ task.id }}" data-id="{{ task.id }}">
+
+        <!-- Left: Checkbox -->
+        <div class="task-check">
+          <button class="check-btn {% if task.status == 'Completed' %}checked{% endif %}"
+                  onclick="toggleTask({{ task.id }}, this)"
+                  title="Toggle status">
+            <i class="bi {% if task.status == 'Completed' %}bi-check-lg{% else %}bi-circle{% endif %}"></i>
+          </button>
+        </div>
+
+        <!-- Middle: Content -->
+        <div class="task-body">
+          <div class="task-header">
+            <span class="task-title">{{ task.title }}</span>
+            <div class="task-badges">
+              <!-- Priority badge -->
+              <span class="badge badge-priority badge-{{ task.priority | lower }}">
+                {{ task.priority }}
+              </span>
+              <!-- Overdue badge -->
+              {% if task.is_overdue() %}
+                <span class="badge badge-overdue">Overdue</span>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if task.description %}
+            <p class="task-desc">{{ task.description }}</p>
+          {% endif %}
+
+          <div class="task-meta">
+            {% if task.due_date %}
+              <span class="meta-item {% if task.is_overdue() %}meta-red{% endif %}">
+                <i class="bi bi-calendar3"></i>
+                Due {{ task.due_date.strftime('%d %b %Y') }}
+              </span>
+            {% endif %}
+            <span class="meta-item">
+              <i class="bi bi-clock"></i>
+              Created {{ task.created_at.strftime('%d %b %Y') }}
+            </span>
+            <span class="meta-item status-dot status-{{ task.status | lower }}">
+              <i class="bi bi-circle-fill"></i> {{ task.status }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Right: Actions -->
+        <div class="task-actions">
+          <a href="{{ url_for('update_task', task_id=task.id) }}"
+             class="action-btn btn-edit" title="Edit task">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <button class="action-btn btn-delete"
+                  onclick="confirmDelete({{ task.id }}, '{{ task.title | replace("'", "\\'") }}')"
+                  title="Delete task">
+            <i class="bi bi-trash3"></i>
+          </button>
+        </div>
+
+      </div><!-- /.task-card -->
+    {% endfor %}
+  </div>
+
+{% else %}
+  <!-- Empty state -->
+  <div class="empty-state">
+    <div class="empty-icon">
+      {% if search_query %}
+        <i class="bi bi-search"></i>
+      {% else %}
+        <i class="bi bi-clipboard-x"></i>
+      {% endif %}
+    </div>
+    <h3 class="empty-title">
+      {% if search_query %}No results for "{{ search_query }}"{% else %}No tasks yet{% endif %}
+    </h3>
+    <p class="empty-sub">
+      {% if search_query %}Try a different search term.{% else %}Create your first task and get things done!{% endif %}
+    </p>
+    {% if not search_query %}
+      <a href="{{ url_for('add_task') }}" class="btn-primary-main">
+        <i class="bi bi-plus-lg"></i> Create Task
+      </a>
+    {% endif %}
+  </div>
+{% endif %}
+
+<!-- ── Delete Confirm Modal ──────────────────────────────────── -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content modal-custom">
+      <div class="modal-body text-center p-4">
+        <div class="delete-icon-wrap"><i class="bi bi-trash3-fill"></i></div>
+        <h5 class="mt-3 mb-2">Delete Task?</h5>
+        <p class="text-muted mb-4" id="deleteTaskName"></p>
+        <div class="d-flex gap-3 justify-content-center">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <form id="deleteForm" method="POST">
+            <button type="submit" class="btn btn-danger">Yes, Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

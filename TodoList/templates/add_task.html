@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}TaskFlow — New Task{% endblock %}
+{% block page_title %}New Task{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-card">
+    <div class="form-card-header">
+      <i class="bi bi-plus-circle-fill form-icon"></i>
+      <div>
+        <h2 class="form-heading">Create New Task</h2>
+        <p class="form-sub">Fill in the details below to add a task.</p>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('add_task') }}" class="task-form" novalidate>
+
+      <!-- Title -->
+      <div class="field-group">
+        <label for="title" class="field-label">Task Title <span class="required">*</span></label>
+        <input
+          type="text"
+          id="title"
+          name="title"
+          class="field-input"
+          placeholder="What needs to be done?"
+          value="{{ form_data.get('title', '') }}"
+          maxlength="200"
+          required
+          autofocus
+        />
+        <span class="field-hint">Max 200 characters</span>
+      </div>
+
+      <!-- Description -->
+      <div class="field-group">
+        <label for="description" class="field-label">Description</label>
+        <textarea
+          id="description"
+          name="description"
+          class="field-input field-textarea"
+          placeholder="Add more details (optional)…"
+          rows="4"
+        >{{ form_data.get('description', '') }}</textarea>
+      </div>
+
+      <!-- Priority + Due Date row -->
+      <div class="field-row">
+        <div class="field-group">
+          <label for="priority" class="field-label">Priority</label>
+          <select id="priority" name="priority" class="field-input field-select">
+            {% for p in ['Low', 'Medium', 'High'] %}
+              <option value="{{ p }}" {% if form_data.get('priority', 'Medium') == p %}selected{% endif %}>
+                {{ p }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="due_date" class="field-label">Due Date</label>
+          <input
+            type="date"
+            id="due_date"
+            name="due_date"
+            class="field-input"
+            value="{{ form_data.get('due_date', '') }}"
+          />
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <a href="{{ url_for('index') }}" class="btn-secondary-main">Cancel</a>
+        <button type="submit" class="btn-primary-main">
+          <i class="bi bi-plus-lg"></i> Create Task
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}

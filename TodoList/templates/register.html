@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}TaskFlow — Register{% endblock %}
+{% block page_title %}Register{% endblock %}
+
+{% block content %}
+<div class="auth-container" style="max-width: 400px; margin: 2rem auto; padding: 2rem; background: var(--surface-color); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+  <h2 style="text-align: center; margin-bottom: 1.5rem;">Create Account</h2>
+  <form method="POST" action="{{ url_for('register') }}">
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input type="text" class="form-control" id="username" name="username" required>
+    </div>
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" class="form-control" id="password" name="password" required>
+    </div>
+    <div class="mb-4">
+      <label for="confirm_password" class="form-label">Confirm Password</label>
+      <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-100" style="background: var(--primary-color); border: none;">Register</button>
+  </form>
+  <p class="mt-3 text-center">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}TaskFlow — Users Database{% endblock %}
+{% block page_title %}Registered Users{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden; background: var(--surface-color);">
+  <div class="card-header border-bottom-0 pt-4 pb-0 px-4" style="background: transparent;">
+    <h5 class="mb-0 fw-bold" style="color: var(--text-main);">User Database</h5>
+    <p class="text-muted small mt-1">A professional overview of all registered users and their task statistics.</p>
+  </div>
+  <div class="card-body p-0 mt-3">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" style="font-size: 0.95rem;">
+        <thead class="text-muted" style="background: rgba(0,0,0,0.02);">
+          <tr>
+            <th class="fw-semibold px-4 py-3 border-0">User ID</th>
+            <th class="fw-semibold py-3 border-0">Username</th>
+            <th class="fw-semibold py-3 border-0 text-center">Total Tasks</th>
+            <th class="fw-semibold py-3 border-0 text-center">Completed</th>
+            <th class="fw-semibold py-3 border-0 text-center">Pending</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users_data %}
+          <tr style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+            <td class="px-4 py-3 text-muted">#{{ u.user.id }}</td>
+            <td class="py-3 fw-medium">
+              <div class="d-flex align-items-center">
+                <div class="text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 36px; height: 36px; font-weight: 600; background: var(--primary-color);">
+                  {{ u.user.username[0] | upper }}
+                </div>
+                <span style="color: var(--text-main);">{{ u.user.username }}</span>
+              </div>
+            </td>
+            <td class="py-3 text-center fw-semibold text-secondary">{{ u.total }}</td>
+            <td class="py-3 text-center text-success"><i class="bi bi-check-circle-fill me-1"></i> {{ u.completed }}</td>
+            <td class="py-3 text-center text-warning"><i class="bi bi-hourglass-split me-1"></i> {{ u.pending }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="text-center py-5 text-muted">No users found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
