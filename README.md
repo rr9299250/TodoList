@@ -16,6 +16,7 @@
 * **Database:** SQLite
 
 ## Project Structure........
+
 todo-app/
 │
 ├── app/
